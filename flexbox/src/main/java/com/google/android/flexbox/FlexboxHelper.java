@@ -567,9 +567,11 @@ class FlexboxHelper {
             if (mIndexToFlexLine != null) {
                 mIndexToFlexLine[i] = flexLines.size();
             }
-            flexLine.mMainSize += getViewMeasuredSizeMain(child, isMainHorizontal)
-                    + getFlexItemMarginStartMain(flexItem, isMainHorizontal) +
-                    getFlexItemMarginEndMain(flexItem, isMainHorizontal);
+            if (!flexItem.isPositionAbsolute()) {
+                flexLine.mMainSize += getViewMeasuredSizeMain(child, isMainHorizontal)
+                        + getFlexItemMarginStartMain(flexItem, isMainHorizontal) +
+                        getFlexItemMarginEndMain(flexItem, isMainHorizontal);
+            }
             flexLine.mTotalFlexGrow += flexItem.getFlexGrow();
             flexLine.mTotalFlexShrink += flexItem.getFlexShrink();
 

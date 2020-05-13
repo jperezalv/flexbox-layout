@@ -271,4 +271,15 @@ interface FlexItem extends Parcelable {
      * @return the end margin of the flex item depending on its resolved layout direction.
      */
     int getMarginEnd();
+
+    boolean isPositionAbsolute();
+
+    int getLeft();
+
+    int getTop();
+
+
+    int getRight();
+
+    int getBottom();
 }

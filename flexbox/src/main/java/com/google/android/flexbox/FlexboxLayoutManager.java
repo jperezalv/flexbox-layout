@@ -2620,6 +2620,16 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
          */
         private boolean mWrapBefore;
 
+        private boolean mPositionAbsolute;
+
+        private int mLeft;
+
+        private int mTop;
+
+        private int mRight;
+
+        private int mBottom;
+
         @Override
         public int getWidth() {
             return width;
@@ -2751,6 +2761,31 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
             return bottomMargin;
         }
 
+        @Override
+        public boolean isPositionAbsolute() {
+            return mPositionAbsolute;
+        }
+
+        @Override
+        public int getLeft() {
+            return mLeft;
+        }
+
+        @Override
+        public int getTop() {
+            return mTop;
+        }
+
+        @Override
+        public int getRight() {
+            return mRight;
+        }
+
+        @Override
+        public int getBottom() {
+            return mBottom;
+        }
+
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
         }
@@ -2783,6 +2818,11 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
             mMaxWidth = source.mMaxWidth;
             mMaxHeight = source.mMaxHeight;
             mWrapBefore = source.mWrapBefore;
+            mPositionAbsolute = source.mPositionAbsolute;
+            mLeft = source.mLeft;
+            mTop = source.mTop;
+            mRight = source.mRight;
+            mBottom = source.mBottom;
         }
 
         @Override
@@ -2823,6 +2863,11 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
             dest.writeInt(this.topMargin);
             dest.writeInt(this.height);
             dest.writeInt(this.width);
+            dest.writeByte(this.mPositionAbsolute ? (byte) 1 : (byte) 0);
+            dest.writeInt(this.leftMargin);
+            dest.writeInt(this.topMargin);
+            dest.writeInt(this.rightMargin);
+            dest.writeInt(this.bottomMargin);
         }
 
         protected LayoutParams(Parcel in) {
@@ -2842,6 +2887,11 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
             this.topMargin = in.readInt();
             this.height = in.readInt();
             this.width = in.readInt();
+            this.mPositionAbsolute = in.readByte() != 0;
+            this.mLeft = in.readInt();
+            this.mTop = in.readInt();
+            this.mRight = in.readInt();
+            this.mBottom = in.readInt();
         }
 
         public static final Parcelable.Creator<LayoutParams> CREATOR

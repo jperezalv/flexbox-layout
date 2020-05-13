@@ -563,27 +563,28 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         int layoutDirection = ViewCompat.getLayoutDirection(this);
+        boolean isDeviceRtl = layoutDirection == ViewCompat.LAYOUT_DIRECTION_RTL;
         boolean isRtl;
         switch (mFlexDirection) {
             case FlexDirection.ROW:
-                isRtl = layoutDirection == ViewCompat.LAYOUT_DIRECTION_RTL;
-                layoutHorizontal(isRtl, left, top, right, bottom);
+                isRtl = isDeviceRtl;
+                layoutHorizontal(isRtl, isDeviceRtl, left, top, right, bottom);
                 break;
             case FlexDirection.ROW_REVERSE:
-                isRtl = layoutDirection != ViewCompat.LAYOUT_DIRECTION_RTL;
-                layoutHorizontal(isRtl, left, top, right, bottom);
+                isRtl = !isDeviceRtl;
+                layoutHorizontal(isRtl, isDeviceRtl, left, top, right, bottom);
                 break;
             case FlexDirection.COLUMN:
-                isRtl = layoutDirection == ViewCompat.LAYOUT_DIRECTION_RTL;
+                isRtl = isDeviceRtl;
                 if (mFlexWrap == FlexWrap.WRAP_REVERSE) {
                     isRtl = !isRtl;
                 }
                 layoutVertical(isRtl, false, left, top, right, bottom);
                 break;
             case FlexDirection.COLUMN_REVERSE:
-                isRtl = layoutDirection == ViewCompat.LAYOUT_DIRECTION_RTL;
+                isRtl = isDeviceRtl;
                 if (mFlexWrap == FlexWrap.WRAP_REVERSE) {
-                    isRtl = !isRtl;
+                    isRtl = !isDeviceRtl;
                 }
                 layoutVertical(isRtl, true, left, top, right, bottom);
                 break;
@@ -597,8 +598,10 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
      * {@link #mFlexDirection} is either {@link FlexDirection#ROW} or
      * {@link FlexDirection#ROW_REVERSE}.
      *
-     * @param isRtl  {@code true} if the horizontal layout direction is right to left, {@code
-     *               false} otherwise.
+     * @param isLayoutDirectionRtl  {@code true} if the horizontal layout direction is right to left,
+     *                              {@code false} otherwise.
+     * @param isDeviceRtl {@code true} if the device is currently using a RTL direction,
+     *                    {@code fals} otherwise.
      * @param left   the left position of this View
      * @param top    the top position of this View
      * @param right  the right position of this View
@@ -611,7 +614,7 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
      * @see #setAlignItems(int)
      * @see LayoutParams#mAlignSelf
      */
-    private void layoutHorizontal(boolean isRtl, int left, int top, int right, int bottom) {
+    private void layoutHorizontal(boolean isLayoutDirectionRtl, boolean isDeviceRtl, int left, int top, int right, int bottom) {
         int paddingLeft = getPaddingLeft();
         int paddingRight = getPaddingRight();
         // Use float to reduce the round error that may happen in when justifyContent ==
@@ -690,8 +693,10 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
                     continue;
                 }
                 LayoutParams lp = ((LayoutParams) child.getLayoutParams());
-                childLeft += lp.leftMargin;
-                childRight -= lp.rightMargin;
+                if (!lp.mPositionAbsolute) {
+                    childLeft += lp.leftMargin;
+                    childRight -= lp.rightMargin;
+                }
                 int beforeDividerLength = 0;
                 int endDividerLength = 0;
                 if (hasDividerBeforeChildAtAlongMainAxis(index, j)) {
@@ -703,34 +708,64 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
                     endDividerLength = mDividerVerticalWidth;
                 }
 
-                if (mFlexWrap == FlexWrap.WRAP_REVERSE) {
-                    if (isRtl) {
-                        mFlexboxHelper.layoutSingleChildHorizontal(child, flexLine,
-                                Math.round(childRight) - child.getMeasuredWidth(),
-                                childBottom - child.getMeasuredHeight(), Math.round(childRight),
-                                childBottom);
+                int viewWidth = child.getMeasuredWidth();
+                int viewHeight = child.getMeasuredHeight();
+                int viewLeft = -1;
+                int viewTop = -1;
+                int viewRight = -1;
+                int viewBottom = -1;
+                if (lp.mPositionAbsolute) {
+                    viewTop = lp.mTop == NOT_SET ?
+                            (lp.mBottom == NOT_SET ? top : bottom - lp.mBottom - viewHeight) :
+                            top + lp.mTop;
+                    viewBottom = Math.max(
+                            viewTop + lp.getMinHeight(),
+                            lp.mBottom == NOT_SET ?
+                                    viewTop + viewHeight :
+                                    Math.max(top + valueOrZero(lp.mTop) + viewHeight, bottom - lp.mBottom));
+                    if (isDeviceRtl) {
+                        viewLeft = lp.mRight == NOT_SET ?
+                                (lp.mLeft == NOT_SET ? width - viewWidth : width - lp.mLeft - viewWidth):
+                                lp.mRight;
+                        viewRight = lp.mLeft == NOT_SET ?
+                                    viewLeft + viewWidth :
+                                    width - lp.mLeft;
                     } else {
-                        mFlexboxHelper.layoutSingleChildHorizontal(child, flexLine,
-                                Math.round(childLeft), childBottom - child.getMeasuredHeight(),
-                                Math.round(childLeft) + child.getMeasuredWidth(), childBottom);
+                        viewLeft = lp.mLeft == NOT_SET ?
+                                (lp.mRight == NOT_SET ? left : width - lp.mRight - viewWidth) :
+                                left + lp.mLeft;
+                        viewRight = lp.mRight == NOT_SET ?
+                                    viewLeft + viewWidth :
+                                    Math.max(left + valueOrZero(lp.mLeft) + lp.mMinWidth, width - lp.mRight);
                     }
                 } else {
-                    if (isRtl) {
-                        mFlexboxHelper.layoutSingleChildHorizontal(child, flexLine,
-                                Math.round(childRight) - child.getMeasuredWidth(),
-                                childTop, Math.round(childRight),
-                                childTop + child.getMeasuredHeight());
+                    if (mFlexWrap == FlexWrap.WRAP_REVERSE) {
+                        // When using WRAP_REVERSE, we prioritize the 'bottom' value
+                        viewBottom = childBottom - valueOrZero(lp.mBottom);
+                        viewTop = viewBottom - viewHeight + valueOrZero(lp.mTop);
                     } else {
-                        mFlexboxHelper.layoutSingleChildHorizontal(child, flexLine,
-                                Math.round(childLeft), childTop,
-                                Math.round(childLeft) + child.getMeasuredWidth(),
-                                childTop + child.getMeasuredHeight());
+                        // When using WRAP, we prioritize the 'top' value
+                        viewTop = childTop + valueOrZero(lp.mTop);
+                        viewBottom = viewTop + viewHeight - valueOrZero(lp.mBottom);
+                    }
+                    if (isLayoutDirectionRtl) {
+                        viewLeft = Math.round(childRight) - viewWidth - valueOrZero(lp.mLeft) + valueOrZero(lp.mRight);
+                        viewRight = Math.round(childRight) - valueOrZero(lp.mLeft);
+                    } else {
+                        viewLeft = Math.round(childLeft) + valueOrZero(lp.mLeft);
+                        viewRight = Math.round(childLeft) + viewWidth + valueOrZero(lp.mLeft) - valueOrZero(lp.mRight);
                     }
                 }
-                childLeft += child.getMeasuredWidth() + spaceBetweenItem + lp.rightMargin;
-                childRight -= child.getMeasuredWidth() + spaceBetweenItem + lp.leftMargin;
 
-                if (isRtl) {
+                mFlexboxHelper.layoutSingleChildHorizontal(child, flexLine,
+                                                           viewLeft, viewTop, viewRight, viewBottom);
+
+                if (!lp.mPositionAbsolute) {
+                    childLeft += viewWidth + spaceBetweenItem + lp.rightMargin;
+                    childRight -= viewWidth + spaceBetweenItem + lp.leftMargin;
+                }
+
+                if (isLayoutDirectionRtl) {
                     flexLine.updatePositionFromView(child, /*leftDecoration*/endDividerLength, 0,
                             /*rightDecoration*/ beforeDividerLength, 0);
                 } else {
@@ -741,6 +776,10 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
             childTop += flexLine.mCrossSize;
             childBottom -= flexLine.mCrossSize;
         }
+    }
+
+    private int valueOrZero(int layoutParamsValue) {
+        return layoutParamsValue == NOT_SET ? 0 : layoutParamsValue;
     }
 
     /**
@@ -847,8 +886,10 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
                     continue;
                 }
                 LayoutParams lp = ((LayoutParams) child.getLayoutParams());
-                childTop += lp.topMargin;
-                childBottom -= lp.bottomMargin;
+                if (!lp.mPositionAbsolute) {
+                    childTop += lp.topMargin;
+                    childBottom -= lp.bottomMargin;
+                }
                 int beforeDividerLength = 0;
                 int endDividerLength = 0;
                 if (hasDividerBeforeChildAtAlongMainAxis(index, j)) {
@@ -860,31 +901,62 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
                         && (mShowDividerHorizontal & SHOW_DIVIDER_END) > 0) {
                     endDividerLength = mDividerHorizontalHeight;
                 }
+                int viewWidth = child.getMeasuredWidth();
+                int viewHeight = child.getMeasuredHeight();
+                int viewLeft = -1;
+                int viewTop = -1;
+                int viewRight = -1;
+                int viewBottom = -1;
                 if (isRtl) {
                     if (fromBottomToTop) {
-                        mFlexboxHelper.layoutSingleChildVertical(child, flexLine, true,
-                                childRight - child.getMeasuredWidth(),
-                                Math.round(childBottom) - child.getMeasuredHeight(), childRight,
-                                Math.round(childBottom));
+                        viewLeft = childRight - viewWidth;
+                        viewTop = Math.round(childBottom) - viewHeight;
+                        viewRight = childRight;
+                        viewBottom = Math.round(childBottom);
                     } else {
-                        mFlexboxHelper.layoutSingleChildVertical(child, flexLine, true,
-                                childRight - child.getMeasuredWidth(), Math.round(childTop),
-                                childRight, Math.round(childTop) + child.getMeasuredHeight());
+                        viewLeft = childRight - viewWidth;
+                        viewTop = Math.round(childTop);
+                        viewRight = childRight;
+                        viewBottom = Math.round(childTop) + viewHeight;
                     }
+                    mFlexboxHelper.layoutSingleChildVertical(child, flexLine, true,
+                        viewLeft, viewTop, viewRight, viewBottom);
                 } else {
-                    if (fromBottomToTop) {
-                        mFlexboxHelper.layoutSingleChildVertical(child, flexLine, false,
-                                childLeft, Math.round(childBottom) - child.getMeasuredHeight(),
-                                childLeft + child.getMeasuredWidth(), Math.round(childBottom));
+                    if (lp.mPositionAbsolute) {
+                        viewLeft = left + lp.mLeft;
+                        viewTop = top + lp.mTop;
+                        viewRight = Math.max(
+                            left + lp.mLeft + lp.getMinWidth(),
+                            lp.mRight == NOT_SET ?
+                                    left + lp.mLeft + viewWidth :
+                                    Math.min(left + lp.mLeft + lp.mMaxWidth, right - lp.mRight)
+                        );
+                        viewBottom = Math.max(
+                            top + lp.mTop + lp.getMinHeight(),
+                            lp.mBottom == NOT_SET ?
+                                    top + lp.mTop + viewHeight :
+                                    Math.min(top + lp.mTop + viewHeight, bottom - lp.mBottom));
                     } else {
-                        mFlexboxHelper.layoutSingleChildVertical(child, flexLine, false,
-                                childLeft, Math.round(childTop),
-                                childLeft + child.getMeasuredWidth(),
-                                Math.round(childTop) + child.getMeasuredHeight());
+                        if (fromBottomToTop) {
+                            viewLeft = childLeft;
+                            viewTop = Math.round(childBottom) - viewHeight;
+                            viewRight = childLeft + viewWidth;
+                            viewBottom = Math.round(childBottom);
+                        } else {
+                            viewLeft = childLeft;
+                            viewTop = Math.round(childTop);
+                            viewRight = childLeft + viewWidth;
+                            viewBottom = Math.round(childTop) + viewHeight;
+                        }
                     }
+                    mFlexboxHelper.layoutSingleChildVertical(child, flexLine, false,
+                         viewLeft, viewTop, viewRight, viewBottom);
                 }
-                childTop += child.getMeasuredHeight() + spaceBetweenItem + lp.bottomMargin;
-                childBottom -= child.getMeasuredHeight() + spaceBetweenItem + lp.topMargin;
+
+                if (!lp.mPositionAbsolute) {
+                    childTop += viewHeight + spaceBetweenItem + lp.bottomMargin;
+                    childBottom -= viewHeight + spaceBetweenItem + lp.topMargin;
+                }
 
                 if (fromBottomToTop) {
                     flexLine.updatePositionFromView(child, 0, /*topDecoration*/endDividerLength, 0,
@@ -1620,6 +1692,16 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
          */
         private boolean mWrapBefore;
 
+        private boolean mPositionAbsolute;
+
+        private int mLeft = NOT_SET;
+
+        private int mTop = NOT_SET;
+
+        private int mRight = NOT_SET;
+
+        private int mBottom = NOT_SET;
+
         public LayoutParams(Context context, AttributeSet attrs) {
             super(context, attrs);
 
@@ -1643,6 +1725,16 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
                     MAX_SIZE);
             mMaxHeight = a.getDimensionPixelSize(R.styleable.FlexboxLayout_Layout_layout_maxHeight,
                     MAX_SIZE);
+            mPositionAbsolute = a
+                    .getInt(R.styleable.FlexboxLayout_Layout_layout_position, 0) != 0;
+            mLeft = a
+                    .getDimensionPixelSize(R.styleable.FlexboxLayout_Layout_layout_left, NOT_SET);
+            mTop = a
+                    .getDimensionPixelSize(R.styleable.FlexboxLayout_Layout_layout_top, NOT_SET);
+            mRight = a
+                    .getDimensionPixelSize(R.styleable.FlexboxLayout_Layout_layout_right, NOT_SET);
+            mBottom = a
+                    .getDimensionPixelSize(R.styleable.FlexboxLayout_Layout_layout_bottom, NOT_SET);
             mWrapBefore = a.getBoolean(R.styleable.FlexboxLayout_Layout_layout_wrapBefore, false);
             a.recycle();
         }
@@ -1659,6 +1751,11 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
             mMinHeight = source.mMinHeight;
             mMaxWidth = source.mMaxWidth;
             mMaxHeight = source.mMaxHeight;
+            mPositionAbsolute = source.mPositionAbsolute;
+            mLeft = source.mLeft;
+            mTop = source.mTop;
+            mRight = source.mRight;
+            mBottom = source.mBottom;
             mWrapBefore = source.mWrapBefore;
         }
 
@@ -1776,6 +1873,51 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
         }
 
         @Override
+        public boolean isPositionAbsolute() {
+            return mPositionAbsolute;
+        }
+
+        public void setPositionAbsolute(boolean positionAbsolute) {
+            this.mPositionAbsolute = positionAbsolute;
+        }
+
+        @Override
+        public int getLeft() {
+            return mLeft;
+        }
+
+        public void setLeft(int left) {
+            this.mLeft = left;
+        }
+
+        @Override
+        public int getTop() {
+            return mTop;
+        }
+
+        public void setTop(int top) {
+            this.mTop = top;
+        }
+
+        @Override
+        public int getRight() {
+            return mRight;
+        }
+
+        public void setRight(int right) {
+            this.mRight = right;
+        }
+
+        @Override
+        public int getBottom() {
+            return mBottom;
+        }
+
+        public void setBottom(int bottom) {
+            this.mBottom = bottom;
+        }
+
+        @Override
         public boolean isWrapBefore() {
             return mWrapBefore;
         }
@@ -1838,6 +1980,11 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
             dest.writeInt(this.topMargin);
             dest.writeInt(this.height);
             dest.writeInt(this.width);
+            dest.writeByte(this.mPositionAbsolute ? (byte) 1 : (byte) 0);
+            dest.writeInt(this.mLeft);
+            dest.writeInt(this.mTop);
+            dest.writeInt(this.mRight);
+            dest.writeInt(this.mBottom);
         }
 
         protected LayoutParams(Parcel in) {
@@ -1860,6 +2007,11 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
             this.topMargin = in.readInt();
             this.height = in.readInt();
             this.width = in.readInt();
+            this.mPositionAbsolute = in.readByte() != 0;
+            this.mLeft = in.readInt();
+            this.mTop = in.readInt();
+            this.mRight = in.readInt();
+            this.mBottom = in.readInt();
         }
 
         public static final Parcelable.Creator<LayoutParams> CREATOR
