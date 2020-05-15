@@ -1702,6 +1702,10 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
 
         private int mBottom = NOT_SET;
 
+        private float mWidthRatio = NOT_SET;
+
+        private float mHeightRatio = NOT_SET;
+
         public LayoutParams(Context context, AttributeSet attrs) {
             super(context, attrs);
 
@@ -1735,6 +1739,12 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
                     .getDimensionPixelSize(R.styleable.FlexboxLayout_Layout_layout_right, NOT_SET);
             mBottom = a
                     .getDimensionPixelSize(R.styleable.FlexboxLayout_Layout_layout_bottom, NOT_SET);
+            mWidthRatio = a
+                    .getFraction(R.styleable.FlexboxLayout_Layout_layout_widthPercent, 1, 1,
+                            PERCENT_DIMENSION_DEFAULT);
+            mHeightRatio = a
+                    .getFraction(R.styleable.FlexboxLayout_Layout_layout_heightPercent, 1, 1,
+                            PERCENT_DIMENSION_DEFAULT);
             mWrapBefore = a.getBoolean(R.styleable.FlexboxLayout_Layout_layout_wrapBefore, false);
             a.recycle();
         }
@@ -1756,6 +1766,8 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
             mTop = source.mTop;
             mRight = source.mRight;
             mBottom = source.mBottom;
+            mWidthRatio = source.mWidthRatio;
+            mHeightRatio = source.mHeightRatio;
             mWrapBefore = source.mWrapBefore;
         }
 
@@ -1958,6 +1970,26 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
         }
 
         @Override
+        public void setWidthRatio(float widthRatio) {
+            this.mWidthRatio = widthRatio;
+        }
+
+        @Override
+        public float getWidthRatio() {
+            return mWidthRatio;
+        }
+
+        @Override
+        public void setHeightRatio(float heightRatio) {
+            this.mHeightRatio = heightRatio;
+        }
+
+        @Override
+        public float getHeightRatio() {
+            return mHeightRatio;
+        }
+
+        @Override
         public int describeContents() {
             return 0;
         }
@@ -1985,6 +2017,8 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
             dest.writeInt(this.mTop);
             dest.writeInt(this.mRight);
             dest.writeInt(this.mBottom);
+            dest.writeFloat(this.mWidthRatio);
+            dest.writeFloat(this.mHeightRatio);
         }
 
         protected LayoutParams(Parcel in) {
@@ -2012,6 +2046,8 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
             this.mTop = in.readInt();
             this.mRight = in.readInt();
             this.mBottom = in.readInt();
+            this.mWidthRatio = in.readFloat();
+            this.mHeightRatio = in.readFloat();
         }
 
         public static final Parcelable.Creator<LayoutParams> CREATOR

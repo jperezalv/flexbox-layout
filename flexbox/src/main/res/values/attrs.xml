@@ -115,6 +115,8 @@ limitations under the License.
             layout_width (or layout_height) for simplicity.
         -->
         <attr name="layout_flexBasisPercent" format="fraction" />
+        <attr name="layout_widthPercent" format="fraction" />
+        <attr name="layout_heightPercent" format="fraction" />
 
         <!--
             Omitting flex property since it's a shorthand for layout_flexGrow and layout_flexShrink

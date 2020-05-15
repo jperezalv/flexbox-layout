@@ -22,6 +22,7 @@ import static com.google.android.flexbox.FlexItem.FLEX_GROW_DEFAULT;
 import static com.google.android.flexbox.FlexItem.FLEX_SHRINK_NOT_SET;
 
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
+import static com.google.android.flexbox.FlexItem.PERCENT_DIMENSION_DEFAULT;
 
 import android.graphics.drawable.Drawable;
 import android.util.SparseIntArray;
@@ -393,6 +394,8 @@ class FlexboxHelper {
 
         int mainMode = View.MeasureSpec.getMode(mainMeasureSpec);
         int mainSize = View.MeasureSpec.getSize(mainMeasureSpec);
+        int crossMode = View.MeasureSpec.getMode(crossMeasureSpec);
+        int crossSize = View.MeasureSpec.getSize(crossMeasureSpec);
 
         int childState = 0;
 
@@ -460,6 +463,24 @@ class FlexboxHelper {
                 // layout_flexBasisPercent.
             }
 
+            int childCrossSize = getFlexItemSizeCross(flexItem, isMainHorizontal);
+
+            if (isMainHorizontal && mainMode == View.MeasureSpec.EXACTLY) {
+                if (flexItem.getWidthRatio() != PERCENT_DIMENSION_DEFAULT) {
+                    childMainSize = Math.round(mainSize * flexItem.getWidthRatio());
+                }
+                if (flexItem.getHeightRatio() != PERCENT_DIMENSION_DEFAULT) {
+                    childCrossSize = Math.round(crossSize * flexItem.getHeightRatio());
+                }
+            } else if (!isMainHorizontal && crossMode == View.MeasureSpec.EXACTLY) {
+                if (flexItem.getHeightRatio() != PERCENT_DIMENSION_DEFAULT) {
+                    childMainSize = Math.round(mainSize * flexItem.getHeightRatio());
+                }
+                if (flexItem.getWidthRatio() != PERCENT_DIMENSION_DEFAULT) {
+                    childCrossSize = Math.round(crossSize * flexItem.getWidthRatio());
+                };
+            }
+
             int childMainMeasureSpec;
             int childCrossMeasureSpec;
             if (isMainHorizontal) {
@@ -473,7 +494,7 @@ class FlexboxHelper {
                                 getFlexItemMarginStartCross(flexItem, true) +
                                 getFlexItemMarginEndCross(flexItem, true)
                                 + sumCrossSize,
-                        getFlexItemSizeCross(flexItem, true));
+                        childCrossSize);
                 child.measure(childMainMeasureSpec, childCrossMeasureSpec);
                 updateMeasureCache(i, childMainMeasureSpec, childCrossMeasureSpec, child);
             } else {
@@ -481,7 +502,7 @@ class FlexboxHelper {
                         crossPaddingStart + crossPaddingEnd +
                                 getFlexItemMarginStartCross(flexItem, false) +
                                 getFlexItemMarginEndCross(flexItem, false) + sumCrossSize,
-                        getFlexItemSizeCross(flexItem, false));
+                        childCrossSize);
                 childMainMeasureSpec = mFlexContainer.getChildHeightMeasureSpec(mainMeasureSpec,
                         mainPaddingStart + mainPaddingEnd +
                                 getFlexItemMarginStartMain(flexItem, false) +

@@ -2630,6 +2630,10 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
 
         private int mBottom;
 
+        private float mWidthRatio;
+
+        private float mHeightRatio;
+
         @Override
         public int getWidth() {
             return width;
@@ -2786,6 +2790,26 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
             return mBottom;
         }
 
+        @Override
+        public void setWidthRatio(float widthRatio) {
+            this.mWidthRatio = widthRatio;
+        }
+
+        @Override
+        public float getWidthRatio() {
+            return mWidthRatio;
+        }
+
+        @Override
+        public void setHeightRatio(float heightRatio) {
+            this.mHeightRatio = heightRatio;
+        }
+
+        @Override
+        public float getHeightRatio() {
+            return mHeightRatio;
+        }
+
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
         }
@@ -2823,6 +2847,8 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
             mTop = source.mTop;
             mRight = source.mRight;
             mBottom = source.mBottom;
+            mWidthRatio = source.mWidthRatio;
+            mHeightRatio = source.mHeightRatio;
         }
 
         @Override
@@ -2868,6 +2894,8 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
             dest.writeInt(this.topMargin);
             dest.writeInt(this.rightMargin);
             dest.writeInt(this.bottomMargin);
+            dest.writeFloat(this.mWidthRatio);
+            dest.writeFloat(this.mHeightRatio);
         }
 
         protected LayoutParams(Parcel in) {
@@ -2892,6 +2920,8 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
             this.mTop = in.readInt();
             this.mRight = in.readInt();
             this.mBottom = in.readInt();
+            this.mWidthRatio = in.readFloat();
+            this.mHeightRatio = in.readFloat();
         }
 
         public static final Parcelable.Creator<LayoutParams> CREATOR
