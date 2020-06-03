@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.flexbox.FlexboxLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:flexWrap="wrap_reverse"
+    app:flexDirection="column">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/lightPink"
+            android:src="@drawable/hotel_image"
+            app:layout_widthPercent="20%"
+            app:layout_heightPercent="10%"
+            app:layout_flexShrink="0"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lorem ipsum, dolor sit amet..."
+            android:background="#FF004488"
+            android:textColor="#FFFFFFFF"
+            app:layout_heightPercent="10%"
+            android:padding="5dp"
+            />
+
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Genius property"-->
+<!--            android:background="#FF004488"-->
+<!--            android:textColor="#FFFFFFFF"-->
+<!--            android:padding="5dp"-->
+<!--            app:layout_position="absolute"-->
+<!--            app:layout_top="5dp"-->
+<!--            app:layout_right="0dp"-->
+<!--            />-->
+
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@android:color/holo_orange_dark"-->
+<!--            android:text="Amazing deal"-->
+<!--            android:padding="10dp"-->
+<!--            app:layout_bottom="10dp"-->
+<!--            app:layout_left="10dp"-->
+<!--            app:layout_right="100dp"-->
+<!--            app:layout_minWidth="110dp"-->
+<!--            app:layout_position="absolute"/>-->
+
+<!--&lt;!&ndash;        <TextView&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_width="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:background="@android:color/holo_green_light"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:layout_flexShrink="0"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:layout_position="absolute"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:layout_top="10dp"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:layout_left="10dp"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:layout_right="10dp"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:layout_bottom="10dp"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:layout_maxWidth="140dp"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:layout_minWidth="80dp"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:text="33_33_33_33"/>&ndash;&gt;-->
+
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@android:color/holo_blue_bright"-->
+<!--            app:layout_flexGrow="0"-->
+<!--            android:text="44_44_44_44\n44_44_44_44" />-->
+
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@color/lightPink"-->
+<!--            app:layout_flexShrink="0"-->
+<!--            android:text="55_55_55_55"/>-->
+</com.google.android.flexbox.FlexboxLayout>
