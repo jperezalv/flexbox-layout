@@ -2630,9 +2630,9 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
 
         private int mBottom;
 
-        private float mWidthRatio;
+        private float mWidthRatio = PERCENT_DIMENSION_DEFAULT;
 
-        private float mHeightRatio;
+        private float mHeightRatio = PERCENT_DIMENSION_DEFAULT;
 
         @Override
         public int getWidth() {
