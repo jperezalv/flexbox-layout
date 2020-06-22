@@ -1741,10 +1741,10 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
                     .getDimensionPixelSize(R.styleable.FlexboxLayout_Layout_layout_bottom, NOT_SET);
             mWidthRatio = a
                     .getFraction(R.styleable.FlexboxLayout_Layout_layout_widthPercent, 1, 1,
-                            PERCENT_DIMENSION_DEFAULT);
+                            PERCENT_DIMENSION_NOT_SET);
             mHeightRatio = a
                     .getFraction(R.styleable.FlexboxLayout_Layout_layout_heightPercent, 1, 1,
-                            PERCENT_DIMENSION_DEFAULT);
+                            PERCENT_DIMENSION_NOT_SET);
             mWrapBefore = a.getBoolean(R.styleable.FlexboxLayout_Layout_layout_wrapBefore, false);
             a.recycle();
         }
