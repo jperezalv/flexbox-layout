@@ -41,7 +41,7 @@ interface FlexItem extends Parcelable {
     /** The default value for the flex basis percent attribute */
     float FLEX_BASIS_PERCENT_DEFAULT = -1f;
 
-    float PERCENT_DIMENSION_DEFAULT = -1f;
+    float PERCENT_DIMENSION_NOT_SET = -1f;
 
     /** The maximum size of the max width and max height attributes */
     int MAX_SIZE = Integer.MAX_VALUE & View.MEASURED_SIZE_MASK;

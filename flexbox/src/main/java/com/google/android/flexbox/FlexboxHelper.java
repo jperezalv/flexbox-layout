@@ -22,7 +22,7 @@ import static com.google.android.flexbox.FlexItem.FLEX_GROW_DEFAULT;
 import static com.google.android.flexbox.FlexItem.FLEX_SHRINK_NOT_SET;
 
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
-import static com.google.android.flexbox.FlexItem.PERCENT_DIMENSION_DEFAULT;
+import static com.google.android.flexbox.FlexItem.PERCENT_DIMENSION_NOT_SET;
 
 import android.graphics.drawable.Drawable;
 import android.util.SparseIntArray;
@@ -451,6 +451,14 @@ class FlexboxHelper {
 
             if (flexItem.getAlignSelf() == AlignItems.STRETCH) {
                 flexLine.mIndicesAlignSelfStretch.add(i);
+            } else if (isMainHorizontal && flexItem.getHeightRatio() != PERCENT_DIMENSION_NOT_SET) {
+                // Piggyback on the stretching functionality to ensure the height is properly set
+                // in WRAP_CONTENT cases
+                flexLine.mIndicesAlignSelfStretch.add(i);
+            } else if (!isMainHorizontal && flexItem.getWidthRatio() != PERCENT_DIMENSION_NOT_SET) {
+                // Piggyback on the stretching functionality to ensure the height is properly set
+                // in WRAP_CONTENT cases
+                flexLine.mIndicesAlignSelfStretch.add(i);
             }
 
             int childMainSize = getFlexItemSizeMain(flexItem, isMainHorizontal);
@@ -466,17 +474,17 @@ class FlexboxHelper {
             int childCrossSize = getFlexItemSizeCross(flexItem, isMainHorizontal);
 
             if (isMainHorizontal && mainMode == View.MeasureSpec.EXACTLY) {
-                if (flexItem.getWidthRatio() != PERCENT_DIMENSION_DEFAULT) {
+                if (flexItem.getWidthRatio() != PERCENT_DIMENSION_NOT_SET) {
                     childMainSize = Math.round(mainSize * flexItem.getWidthRatio());
                 }
-                if (flexItem.getHeightRatio() != PERCENT_DIMENSION_DEFAULT) {
+                if (flexItem.getHeightRatio() != PERCENT_DIMENSION_NOT_SET) {
                     childCrossSize = Math.round(crossSize * flexItem.getHeightRatio());
                 }
             } else if (!isMainHorizontal && crossMode == View.MeasureSpec.EXACTLY) {
-                if (flexItem.getHeightRatio() != PERCENT_DIMENSION_DEFAULT) {
+                if (flexItem.getHeightRatio() != PERCENT_DIMENSION_NOT_SET) {
                     childMainSize = Math.round(mainSize * flexItem.getHeightRatio());
                 }
-                if (flexItem.getWidthRatio() != PERCENT_DIMENSION_DEFAULT) {
+                if (flexItem.getWidthRatio() != PERCENT_DIMENSION_NOT_SET) {
                     childCrossSize = Math.round(crossSize * flexItem.getWidthRatio());
                 };
             }
@@ -1667,11 +1675,19 @@ class FlexboxHelper {
                     switch (flexDirection) {
                         case FlexDirection.ROW: // Intentional fall through
                         case FlexDirection.ROW_REVERSE:
-                            stretchViewVertically(view, flexLine.mCrossSize, viewIndex);
+                            if (flexItem.getHeightRatio() != PERCENT_DIMENSION_NOT_SET) {
+                                stretchViewVertically(view, (int)(flexLine.mCrossSize * flexItem.getHeightRatio()), viewIndex);
+                            } else {
+                                stretchViewVertically(view, flexLine.mCrossSize, viewIndex);
+                            }
                             break;
                         case FlexDirection.COLUMN:
                         case FlexDirection.COLUMN_REVERSE:
-                            stretchViewHorizontally(view, flexLine.mCrossSize, viewIndex);
+                            if (flexItem.getWidthRatio() != PERCENT_DIMENSION_NOT_SET) {
+                                stretchViewHorizontally(view, (int)(flexLine.mCrossSize * flexItem.getWidthRatio()), viewIndex);
+                            } else {
+                                stretchViewHorizontally(view, flexLine.mCrossSize, viewIndex);
+                            }
                             break;
                         default:
                             throw new IllegalArgumentException(
@@ -1683,14 +1699,23 @@ class FlexboxHelper {
             for (FlexLine flexLine : mFlexContainer.getFlexLinesInternal()) {
                 for (Integer index : flexLine.mIndicesAlignSelfStretch) {
                     View view = mFlexContainer.getReorderedFlexItemAt(index);
+                    FlexItem flexItem = (FlexItem) view.getLayoutParams();
                     switch (flexDirection) {
                         case FlexDirection.ROW: // Intentional fall through
                         case FlexDirection.ROW_REVERSE:
-                            stretchViewVertically(view, flexLine.mCrossSize, index);
+                            if (flexItem.getHeightRatio() != PERCENT_DIMENSION_NOT_SET) {
+                                stretchViewVertically(view, (int)(flexLine.mCrossSize * flexItem.getHeightRatio()), index);
+                            } else {
+                                stretchViewVertically(view, flexLine.mCrossSize, index);
+                            }
                             break;
                         case FlexDirection.COLUMN:
                         case FlexDirection.COLUMN_REVERSE:
-                            stretchViewHorizontally(view, flexLine.mCrossSize, index);
+                            if (flexItem.getWidthRatio() != PERCENT_DIMENSION_NOT_SET) {
+                                stretchViewHorizontally(view, (int)(flexLine.mCrossSize * flexItem.getWidthRatio()), index);
+                            } else {
+                                stretchViewHorizontally(view, flexLine.mCrossSize, index);
+                            }
                             break;
                         default:
                             throw new IllegalArgumentException(
