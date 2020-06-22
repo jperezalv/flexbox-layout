@@ -477,14 +477,14 @@ class FlexboxHelper {
                 if (flexItem.getWidthRatio() != PERCENT_DIMENSION_NOT_SET) {
                     childMainSize = Math.round(mainSize * flexItem.getWidthRatio());
                 }
-                if (flexItem.getHeightRatio() != PERCENT_DIMENSION_NOT_SET) {
+                if (flexItem.getHeightRatio() != PERCENT_DIMENSION_NOT_SET && crossMode == View.MeasureSpec.EXACTLY) {
                     childCrossSize = Math.round(crossSize * flexItem.getHeightRatio());
                 }
             } else if (!isMainHorizontal && crossMode == View.MeasureSpec.EXACTLY) {
                 if (flexItem.getHeightRatio() != PERCENT_DIMENSION_NOT_SET) {
                     childMainSize = Math.round(mainSize * flexItem.getHeightRatio());
                 }
-                if (flexItem.getWidthRatio() != PERCENT_DIMENSION_NOT_SET) {
+                if (flexItem.getWidthRatio() != PERCENT_DIMENSION_NOT_SET && mainMode == View.MeasureSpec.EXACTLY) {
                     childCrossSize = Math.round(crossSize * flexItem.getWidthRatio());
                 };
             }
