@@ -780,10 +780,10 @@ class FlexboxHelper {
      */
     private int getFlexItemSizeMain(FlexItem flexItem, boolean isMainHorizontal) {
         if (isMainHorizontal) {
-            return flexItem.getWidth();
+            return flexItem.getFlexGrow() > 0 ? -2 : flexItem.getWidth();
         }
 
-        return flexItem.getHeight();
+        return flexItem.getFlexGrow() > 0 ? -2 : flexItem.getHeight();
     }
 
     /**
