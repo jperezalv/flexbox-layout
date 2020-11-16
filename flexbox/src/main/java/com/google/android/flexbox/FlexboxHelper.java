@@ -473,20 +473,32 @@ class FlexboxHelper {
 
             int childCrossSize = getFlexItemSizeCross(flexItem, isMainHorizontal);
 
-            if (isMainHorizontal && mainMode == View.MeasureSpec.EXACTLY) {
+            if (isMainHorizontal) {
                 if (flexItem.getWidthRatio() != PERCENT_DIMENSION_NOT_SET) {
-                    childMainSize = Math.round(mainSize * flexItem.getWidthRatio());
+                    childMainSize = Math.round((mainSize - mainPaddingStart - mainPaddingEnd
+                            - getFlexItemMarginStartMain(flexItem, true)
+                            - getFlexItemMarginEndMain(flexItem, true))
+                            * flexItem.getWidthRatio());
                 }
                 if (flexItem.getHeightRatio() != PERCENT_DIMENSION_NOT_SET && crossMode == View.MeasureSpec.EXACTLY) {
-                    childCrossSize = Math.round(crossSize * flexItem.getHeightRatio());
+                    childCrossSize = Math.round((crossSize - crossPaddingStart - crossPaddingEnd
+                            - getFlexItemMarginStartCross(flexItem, true)
+                            - getFlexItemMarginEndCross(flexItem, true))
+                            * flexItem.getHeightRatio());
                 }
-            } else if (!isMainHorizontal && mainMode == View.MeasureSpec.EXACTLY) {
+            } else {
                 if (flexItem.getHeightRatio() != PERCENT_DIMENSION_NOT_SET) {
-                    childMainSize = Math.round(mainSize * flexItem.getHeightRatio());
+                    childMainSize = Math.round((mainSize - mainPaddingStart - mainPaddingEnd
+                            - getFlexItemMarginStartMain(flexItem, false)
+                            - getFlexItemMarginEndMain(flexItem, false))
+                            * flexItem.getHeightRatio());
                 }
                 if (flexItem.getWidthRatio() != PERCENT_DIMENSION_NOT_SET && crossMode == View.MeasureSpec.EXACTLY) {
-                    childCrossSize = Math.round(crossSize * flexItem.getWidthRatio());
-                };
+                    childCrossSize = Math.round((crossSize - crossPaddingStart - crossPaddingEnd
+                            - getFlexItemMarginStartCross(flexItem, false)
+                            - getFlexItemMarginEndCross(flexItem, false))
+                            * flexItem.getWidthRatio());
+                }
             }
 
             int childMainMeasureSpec;
