@@ -480,6 +480,12 @@ class FlexboxHelper {
                             - getFlexItemMarginEndMain(flexItem, true))
                             * flexItem.getWidthRatio());
                 }
+                if (flexItem.getAspectRatio() != NOT_SET) {
+                    childCrossSize = Math.round((childMainSize - crossPaddingStart - crossPaddingEnd
+                            - getFlexItemMarginStartCross(flexItem, true)
+                            - getFlexItemMarginEndCross(flexItem, true))
+                            * flexItem.getAspectRatio());
+                }
                 if (flexItem.getHeightRatio() != PERCENT_DIMENSION_NOT_SET && crossMode == View.MeasureSpec.EXACTLY) {
                     childCrossSize = Math.round((crossSize - crossPaddingStart - crossPaddingEnd
                             - getFlexItemMarginStartCross(flexItem, true)

@@ -2634,6 +2634,8 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
 
         private float mHeightRatio = PERCENT_DIMENSION_NOT_SET;
 
+        private float mAspectRatio = NOT_SET;
+
         @Override
         public int getWidth() {
             return width;
@@ -2810,6 +2812,16 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
             return mHeightRatio;
         }
 
+        @Override
+        public float getAspectRatio() {
+            return mAspectRatio;
+        }
+
+        @Override
+        public void setAspectRatio(float aspectRatio) {
+            this.mAspectRatio = aspectRatio;
+        }
+
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
         }
@@ -2849,6 +2861,7 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
             mBottom = source.mBottom;
             mWidthRatio = source.mWidthRatio;
             mHeightRatio = source.mHeightRatio;
+            mAspectRatio = source.mAspectRatio;
         }
 
         @Override
@@ -2896,6 +2909,7 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
             dest.writeInt(this.bottomMargin);
             dest.writeFloat(this.mWidthRatio);
             dest.writeFloat(this.mHeightRatio);
+            dest.writeFloat(this.mAspectRatio);
         }
 
         protected LayoutParams(Parcel in) {
@@ -2922,6 +2936,7 @@ public class FlexboxLayoutManager extends RecyclerView.LayoutManager implements 
             this.mBottom = in.readInt();
             this.mWidthRatio = in.readFloat();
             this.mHeightRatio = in.readFloat();
+            this.mAspectRatio = in.readFloat();
         }
 
         public static final Parcelable.Creator<LayoutParams> CREATOR

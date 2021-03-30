@@ -292,4 +292,8 @@ interface FlexItem extends Parcelable {
     void setHeightRatio(float heightRatio);
 
     float getHeightRatio();
+
+    void setAspectRatio(float aspectRatio);
+
+    float getAspectRatio();
 }
