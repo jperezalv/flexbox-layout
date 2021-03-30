@@ -617,6 +617,8 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
     private void layoutHorizontal(boolean isLayoutDirectionRtl, boolean isDeviceRtl, int left, int top, int right, int bottom) {
         int paddingLeft = getPaddingLeft();
         int paddingRight = getPaddingRight();
+        int paddingTop = getPaddingTop();
+        int paddingBottom = getPaddingBottom();
         // Use float to reduce the round error that may happen in when justifyContent ==
         // SPACE_BETWEEN or SPACE_AROUND
         float childLeft;
@@ -715,16 +717,21 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
                 int viewRight = -1;
                 int viewBottom = -1;
                 if (lp.mPositionAbsolute) {
-                    viewTop = lp.mTop == NOT_SET ?
-                            (lp.mBottom == NOT_SET ? 0 : Math.max(lp.topMargin, height - viewHeight - lp.mBottom + lp.topMargin - lp.bottomMargin)):
-                            valueOrZero(lp.mTop);
-                    viewBottom = Math.max(
-                            viewTop + lp.getMinHeight(),
-                            lp.mBottom == NOT_SET ?
-                                    Math.min(viewTop + viewHeight, height - lp.topMargin - lp.bottomMargin) :
-                                    Math.min(viewTop + viewHeight, height - lp.mBottom - lp.bottomMargin));
+                    if (lp.mAlignSelf == AlignSelf.AUTO) {
+                        viewTop = lp.mTop == NOT_SET ?
+                                (lp.mBottom == NOT_SET ? paddingTop : Math.max(lp.topMargin + paddingTop, height - viewHeight - lp.mBottom + lp.topMargin - lp.bottomMargin - paddingBottom)) :
+                                valueOrZero(lp.mTop);
+                        viewBottom = Math.max(
+                                viewTop + lp.getMinHeight(),
+                                lp.mBottom == NOT_SET ?
+                                        Math.min(viewTop + viewHeight, height - lp.topMargin - lp.bottomMargin) :
+                                        Math.min(viewTop + viewHeight, height - lp.mBottom - lp.bottomMargin));
+                    } else {
+                        viewTop = getPaddingTop() + lp.topMargin;
+                        viewBottom = viewTop + viewHeight;
+                    }
                     if (isDeviceRtl) {
-                        viewRight = width - valueOrZero(lp.mLeft) - lp.leftMargin + lp.rightMargin;
+                        viewRight = width - valueOrZero(lp.mLeft) - lp.leftMargin - lp.rightMargin - paddingRight;
                         viewLeft = Math.min(
                                 viewRight - lp.getMinWidth(),
                                 Math.max(
@@ -733,13 +740,12 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
                                 )
                         );
                     } else {
-                        viewLeft = lp.leftMargin + valueOrZero(lp.mLeft);
+                        viewLeft = lp.mLeft == NOT_SET ?
+                                (lp.mRight == NOT_SET ? lp.leftMargin + paddingLeft : width - lp.mRight - viewWidth - lp.rightMargin - paddingRight):
+                                lp.leftMargin + valueOrZero(lp.mLeft) + paddingLeft;
                         viewRight = Math.max(
                                 viewLeft + lp.getMinWidth(),
-                                Math.min(
-                                        viewLeft + lp.mMaxWidth,
-                                        Math.min(viewLeft + viewWidth, width - lp.mRight - lp.rightMargin)
-                                )
+                                Math.min(viewLeft + lp.mMaxWidth, Math.min(viewLeft + viewWidth, width - lp.mRight - lp.rightMargin - paddingRight))
                         );
                     }
                 } else {
@@ -913,25 +919,25 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
                 int viewBottom = -1;
                 if (lp.mPositionAbsolute) {
                     viewTop = lp.mTop == NOT_SET ?
-                            (lp.mBottom == NOT_SET ? lp.topMargin : Math.max(lp.topMargin, height - viewHeight - lp.mBottom + lp.topMargin - lp.bottomMargin)):
-                            valueOrZero(lp.mTop) + lp.topMargin;
+                            (lp.mBottom == NOT_SET ? lp.topMargin + paddingTop : Math.max(lp.topMargin, height - viewHeight - lp.mBottom + lp.topMargin - lp.bottomMargin - paddingBottom)) :
+                            valueOrZero(lp.mTop) + lp.topMargin + paddingTop;
                     viewBottom = Math.max(
-                                        viewTop + lp.getMinHeight(),
-                                        Math.min(
-                                                viewTop + viewHeight,
-                                                height - valueOrZero(lp.mBottom) - lp.bottomMargin
-                                        )
-                                 );
+                            viewTop + lp.getMinHeight(),
+                            Math.min(
+                                    viewTop + viewHeight,
+                                    height - valueOrZero(lp.mBottom) - lp.bottomMargin - paddingBottom
+                            )
+                    );
                 }
                 if (isRtl) {
                     if (lp.mPositionAbsolute) {
-                        viewRight = width - valueOrZero(lp.mLeft) - lp.leftMargin + lp.rightMargin;
+                        viewRight = lp.mAlignSelf == AlignSelf.AUTO ? width - valueOrZero(lp.mLeft) - paddingRight : width - paddingRight ;
                         viewLeft = Math.min(
-                                        viewRight - lp.getMinWidth(),
-                                        Math.max(
-                                                viewRight - lp.mMaxWidth,
-                                                Math.max(viewRight - viewWidth, lp.rightMargin + valueOrZero(lp.mRight) + lp.rightMargin)
-                                        )
+                                viewRight - lp.getMinWidth(),
+                                Math.max(
+                                        viewRight - lp.mMaxWidth,
+                                        Math.max(viewRight - viewWidth, lp.rightMargin + valueOrZero(lp.mRight) + lp.rightMargin)
+                                )
                         );
                     } else {
                         if (fromBottomToTop) {
@@ -950,13 +956,13 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
                         viewLeft, viewTop, viewRight, viewBottom);
                 } else {
                     if (lp.mPositionAbsolute) {
-                        viewLeft = valueOrZero(lp.mLeft);
+                        viewLeft = lp.mAlignSelf == AlignSelf.AUTO ? valueOrZero(lp.mLeft) + getPaddingLeft() : getPaddingLeft();
                         viewRight = Math.max(
-                                        viewLeft + lp.getMinWidth(),
-                                        Math.min(
-                                            viewLeft + lp.mMaxWidth,
-                                            Math.min(viewLeft + viewWidth, width - lp.mRight - lp.rightMargin - viewLeft)
-                                        )
+                                viewLeft + lp.getMinWidth(),
+                                Math.min(
+                                        viewLeft + lp.mMaxWidth,
+                                        Math.min(viewLeft + viewWidth, width - valueOrZero(lp.mRight) - lp.rightMargin - viewLeft)
+                                )
                         );
                     } else {
                         if (fromBottomToTop) {
@@ -1728,6 +1734,8 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
 
         private float mHeightRatio = NOT_SET;
 
+        private float mAspectRatio = NOT_SET;
+
         public LayoutParams(Context context, AttributeSet attrs) {
             super(context, attrs);
 
@@ -1767,6 +1775,7 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
             mHeightRatio = a
                     .getFraction(R.styleable.FlexboxLayout_Layout_layout_heightPercent, 1, 1,
                             PERCENT_DIMENSION_NOT_SET);
+            mAspectRatio = a.getFloat(R.styleable.FlexboxLayout_Layout_layout_aspectRatio, NOT_SET);
             mWrapBefore = a.getBoolean(R.styleable.FlexboxLayout_Layout_layout_wrapBefore, false);
             a.recycle();
         }
@@ -1790,6 +1799,7 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
             mBottom = source.mBottom;
             mWidthRatio = source.mWidthRatio;
             mHeightRatio = source.mHeightRatio;
+            mAspectRatio = source.mAspectRatio;
             mWrapBefore = source.mWrapBefore;
         }
 
@@ -2012,6 +2022,16 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
         }
 
         @Override
+        public void setAspectRatio(float aspectRatio) {
+            this.mAspectRatio = aspectRatio;
+        }
+
+        @Override
+        public float getAspectRatio() {
+            return mAspectRatio;
+        }
+
+        @Override
         public int describeContents() {
             return 0;
         }
@@ -2041,6 +2061,7 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
             dest.writeInt(this.mBottom);
             dest.writeFloat(this.mWidthRatio);
             dest.writeFloat(this.mHeightRatio);
+            dest.writeFloat(this.mAspectRatio);
         }
 
         protected LayoutParams(Parcel in) {
@@ -2070,6 +2091,7 @@ public class FlexboxLayout extends ViewGroup implements FlexContainer {
             this.mBottom = in.readInt();
             this.mWidthRatio = in.readFloat();
             this.mHeightRatio = in.readFloat();
+            this.mAspectRatio = in.readFloat();
         }
 
         public static final Parcelable.Creator<LayoutParams> CREATOR
